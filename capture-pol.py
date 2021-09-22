@@ -840,13 +840,22 @@ if redocal == True:
 	                        logging.info(mygaintables)
         	                gainfields = [str(', '.join(mypcals)),'','']
                 	        logging.info(gainfields)
+#			else:
+#				default(applycal)
+#				applycal(vis=msfilename, field=str(', '.join(mytargets)), spw = flagspw, gaintable=mygaintables,
+#		        	 gainfield=[str(', '.join(myampcals)),'',''],interp=['linear','','nearest'], calwt=[False], parang=False)
+#				logging.info(mygaintables)
+#       	                gainfields = [str(', '.join(myampcals)),'','']
+#                	        logging.info(gainfields)
+############new code to use flux cal with max scans as the pcal#####
 			else:
 				default(applycal)
 				applycal(vis=msfilename, field=str(', '.join(mytargets)), spw = flagspw, gaintable=mygaintables,
-		        	 gainfield=[str(', '.join(myampcals)),'',''],interp=['linear','','nearest'], calwt=[False], parang=False)
-				logging.info(mygaintables)
-        	                gainfields = [str(', '.join(myampcals)),'','']
+			        	 gainfield=[pampcal,'',''],interp=['linear','','nearest'], calwt=[False], parang=False)	
+                	        logging.info(mygaintables)
+				gainfields = [pampcal,'','']
                 	        logging.info(gainfields)
+#################################################################
 		logging.info("Finished re-calibration.")
         	logging.info("A flagging summary is provided for the MS file.")
         	flagsummary(msfilename)
@@ -1059,7 +1068,10 @@ if redocal == True:
 				gtables = [str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1,
 # leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				if mypcals != []:
+					gfields = [myampcals[0],mybpcals,', '.join(mypcals)),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				else:
+					gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("targets %s",str(', '.join(mytargets)))
 				papplycal_target(msfilename,str(', '.join(mytargets)),flagspw,gtables,gfields)
