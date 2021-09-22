@@ -1069,7 +1069,7 @@ if redocal == True:
 # leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
 				if mypcals != []:
-					gfields = [myampcals[0],mybpcals,', '.join(mypcals)),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+					gfields = [myampcals[0],mybpcals,', '.join(mypcals),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				else:
 #					gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 					gfields = [myampcals[0],mybpcals,pampcal,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
