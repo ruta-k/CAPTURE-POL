@@ -1071,7 +1071,8 @@ if redocal == True:
 				if mypcals != []:
 					gfields = [myampcals[0],mybpcals,', '.join(mypcals)),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				else:
-					gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+#					gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+					gfields = [myampcals[0],mybpcals,pampcal,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("targets %s",str(', '.join(mytargets)))
 				papplycal_target(msfilename,str(', '.join(mytargets)),flagspw,gtables,gfields)
