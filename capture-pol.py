@@ -61,6 +61,8 @@ makedirty = config.getboolean('basic','makedirty')
 doselfcal = config.getboolean('basic','doselfcal') 
 dosubbandselfcal = config.getboolean('basic','dosubbandselfcal')
 domidselfcal = config.getboolean('basic','domidselfcal')
+dopolimages_target = config.getboolean('basic','dopolimages_target')
+dopolimages_calibrator =config.getboolean('basic','dopolimages_calibrator')
 usetclean = config.getboolean('default','usetclean')                        
 ltafile =config.get('basic','ltafile')
 gvbinpath = config.get('basic', 'gvbinpath').split(',')
@@ -70,6 +72,7 @@ splitfilename =config.get('basic','splitfilename')
 splitavgfilename = config.get('basic','splitavgfilename')
 selfcalvis = config.get('basic','selfcalvis')
 scalsrno = int(config.get('basic','scalsrno'))
+finalvis = config.get('basic','finalvis')
 setquackinterval = config.getfloat('basic','setquackinterval')
 ref_ant = config.get('basic','ref_ant')
 clipfluxcal = [float(config.get('basic','clipfluxcal').split(',')[0]),float(config.get('basic','clipfluxcal').split(',')[1])]
@@ -1263,7 +1266,7 @@ if doselfcal == True:
 	                if nspws == 1:
                                 bw=getbw(splitavgfilename)
                                 if bw<=32E06:
-                                        raise Exception("GSB files cannot be subbanded. Make dosubbandselfcal False")                            
+                                        raise Exception("GSB files  need not be subbanded. Make dosubbandselfcal False")                            
 	                        mygainspw, msspw = makesubbands(myfile2,subbandchan)
 #	        		bw=getbw(splitavgfilename)
 #	        		if bw<=32E06:
@@ -1310,6 +1313,127 @@ if doselfcal == True:
 			myselfcal(myfile2,ref_ant,scaloops,pcaloops,mJythreshold,imcellsize,imsize_pix,use_nterms,nwprojpl,scalsolints,clipresid,'','',False,niter_start,clean_robust,domidselfcal,scalsrno)
 			
 
+if dopolimages_target == True:
+	tcleanQ(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
+	tcleanU(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
+	tcleanV(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
 
+
+
+
+if dopolimages_calibrator == True:
+# fix targets
+	myfields = getfields(msfilename)
+	stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
+	stdpolcals = ['3C286','3C138']
+	stdunpolcals = ['3C84']
+	stdothercal = ['OQ208']
+	vlacals = np.loadtxt('./vla-cals.list',dtype='string')
+	myampcals =[]
+	mypcals=[]
+	mypolcals =[]
+	myunpolcals =[]
+	mytargets=[]
+	myocals =[]
+	for i in range(0,len(myfields)):
+	        if myfields[i] in stdcals:
+	                myampcals.append(myfields[i])
+	        elif myfields[i] in vlacals:
+	                mypcals.append(myfields[i])
+	        else:
+	                mytargets.append(myfields[i])
+	        if myfields[i] in stdpolcals:
+	                mypolcals.append(myfields[i])
+	        if myfields[i] in stdunpolcals:
+	                myunpolcals.append(myfields[i])
+	        if myfields[i] in stdothercal:
+	                myocals.append(myfields[i])
+	mybpcals = myampcals
+	if '3C138' in mypolcals:
+	        mytransfield  = mypcals+myunpolcals+myocals+['3C138']
+	else:
+	        mytransfield =mypcals+myunpolcals+myocals
+	try:
+	        mytargets.remove('3C84')
+	except ValueError:
+	        logging.info("3C84 is not in the target list.")
+	try:
+	        mytargets.remove('OQ208')
+	except ValueError:
+	        logging.info("OQ208 is not in the target list.")
+	try:
+	        mytargets.remove('3C138')
+	except ValueError:
+	        logging.info("3C138 is not in the target list.")
+	logging.info('Amplitude caibrators are %s', str(myampcals))
+	logging.info('Phase calibrators are %s', str(mypcals))
+	logging.info('Polarized calibrators are %s', str(mypolcals))
+	logging.info('Un-polarized calibrators are %s', str(myunpolcals))
+	logging.info('Other calibrator is %s',str(myocals))
+	logging.info('Target sources are %s', str(mytargets))
+	logging.info('Transfer fields are %s', str(mytransfield))
+	myallcals = myampcals+mypcals+mypolcals+myunpolcals+myocals
+	uniq_cals = list(set(myallcals))
+	logging.info('The calibrators in this file are %s', str(uniq_cals))
+        gainspw1,goodchans,flg_chans,pols = getgainspw(msfilename)
+	for i in range(0,len(uniq_cals)):
+		if os.path.isdir(uniq_cals[i]+'split.ms') == True:
+                        logging.info("The existing split file will be deleted.")
+			os.system('rm -rf '+uniq_cals[i]+'split.ms')
+                logging.info("Splitting calibrator source data.")
+                logging.info(gainspw1)
+		splitfilename = mysplitinit(msfilename,uniq_cals[i],gainspw1,1)
+
+# Flagging on split file
+#############################################################
+#if flagsplitfile == True:
+ 	       try:
+ 	               assert os.path.isdir(splitfilename), "the split file of the claibrator not found."
+ 	       except AssertionError:
+ 	               logging.info("The split file not found.")
+ 	               sys.exit()
+	        logging.info("Now proceeding to flag on the split file.")
+		myantselect =''
+		mytfcrop(splitfilename,'',myantselect,4.0,4.0,'DATA','')
+#		a, b = getbllists(splitfilename)
+#		tdev = 6.0
+#		fdev = 6.0
+		myrflag(splitfilename,'',myantselect,4.0,4.0,'DATA','')
+#		tdev = 5.0
+#		fdev = 5.0
+#		myrflag(splitfilename,'',b[0],tdev,fdev,'DATA','')
+		logging.info("A flagging summary is provided for the MS file.")
+        	flagsummary(splitfilename)
+#############################################################
+# SPLIT AVERAGE
+#############################################################
+#if dosplitavg == True:
+	        try:
+        	        assert os.path.isdir(splitfilename), "The split file for the calibrator not found."
+        	except AssertionError:
+        	        logging.info("The split file not found.")
+        	        sys.exit()
+		logging.info("Your data will be averaged in frequency.")
+        	if os.path.isdir('avg-'+splitfilename) == True:
+        	        os.system('rm -rf avg-'+splitfilename)
+        	        if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
+        	               os.system('rm -rf avg-'+splitfilename+'.flagversions')
+		splitavgfilename = mysplitavg(splitfilename,'','',chanavg)
+#if doflagavg == True:
+	        try:
+	                assert os.path.isdir(splitavgfilename), "The splitavg file not found."
+	        except AssertionError:
+	                logging.info("The splitavg file not found.")
+                sys.exit()
+		logging.info("Flagging on freqeuncy averaged data.")
+#		a, b = getbllists(splitavgfilename)
+		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
+		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
+	        logging.info("A flagging summary is provided for the MS file.")
+	        flagsummary(splitavgfilename)
+		tcleanQ(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+		tcleanU(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+		tcleanV(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+	
 
 
