@@ -1092,19 +1092,71 @@ if dosplit == True:
 	logging.info("The data on targets will be split into separate files.")
 	casalog.filter('INFO')
 # fix targets
+#	myfields = getfields(msfilename)
+#	stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
+#	vlacals = np.loadtxt('./vla-cals.list',dtype='string')
+#	myampcals =[]
+#	mypcals=[]
+#	mytargets=[]
+#	for i in range(0,len(myfields)):
+#		if myfields[i] in stdcals:
+#			myampcals.append(myfields[i])
+#		elif myfields[i] in vlacals:
+#			mypcals.append(myfields[i])
+#		else:
+#			mytargets.append(myfields[i])
+#################################### new code below #######
+# fix targets
 	myfields = getfields(msfilename)
 	stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
+	stdpolcals = ['3C286','3C138']
+	stdunpolcals = ['3C84']
+	stdothercal = ['OQ208']
 	vlacals = np.loadtxt('./vla-cals.list',dtype='string')
 	myampcals =[]
 	mypcals=[]
+	mypolcals =[]
+	myunpolcals =[]
 	mytargets=[]
+	myocals =[]
 	for i in range(0,len(myfields)):
-		if myfields[i] in stdcals:
-			myampcals.append(myfields[i])
-		elif myfields[i] in vlacals:
-			mypcals.append(myfields[i])
-		else:
-			mytargets.append(myfields[i])
+	        if myfields[i] in stdcals:
+	                myampcals.append(myfields[i])
+	        elif myfields[i] in vlacals:
+	                mypcals.append(myfields[i])
+	        else:
+	                mytargets.append(myfields[i])
+	        if myfields[i] in stdpolcals:
+	                mypolcals.append(myfields[i])
+	        if myfields[i] in stdunpolcals:
+	                myunpolcals.append(myfields[i])
+	        if myfields[i] in stdothercal:
+	                myocals.append(myfields[i])
+	mybpcals = myampcals
+	if '3C138' in mypolcals:
+	        mytransfield  = mypcals+myunpolcals+myocals+['3C138']
+	else:
+	        mytransfield =mypcals+myunpolcals+myocals
+	try:
+	        mytargets.remove('3C84')
+	except ValueError:
+	        logging.info("3C84 is not in the target list.")
+	try:
+	        mytargets.remove('OQ208')
+	except ValueError:
+	        logging.info("OQ208 is not in the target list.")
+	try:
+	        mytargets.remove('3C138')
+	except ValueError:
+	        logging.info("3C138 is not in the target list.")
+	logging.info('Amplitude caibrators are %s', str(myampcals))
+	logging.info('Phase calibrators are %s', str(mypcals))
+	logging.info('Polarized calibrators are %s', str(mypolcals))
+	logging.info('Un-polarized calibrators are %s', str(myunpolcals))
+	logging.info('Other calibrator is %s',str(myocals))
+	logging.info('Target sources are %s', str(mytargets))
+	logging.info('Transfer fields are %s', str(mytransfield))
+###########################################################
         gainspw1,goodchans,flg_chans,pols = getgainspw(msfilename)
 	for i in range(0,len(mytargets)):
 		if os.path.isdir(mytargets[i]+'split.ms') == True:
