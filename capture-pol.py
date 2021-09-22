@@ -1383,15 +1383,14 @@ if dopolimages_calibrator == True:
                 logging.info("Splitting calibrator source data.")
                 logging.info(gainspw1)
 		splitfilename = mysplitinit(msfilename,uniq_cals[i],gainspw1,1)
-
 # Flagging on split file
 #############################################################
 #if flagsplitfile == True:
- 	       try:
- 	               assert os.path.isdir(splitfilename), "the split file of the claibrator not found."
- 	       except AssertionError:
- 	               logging.info("The split file not found.")
- 	               sys.exit()
+		try:
+			assert os.path.isdir(splitfilename), "the split file of the claibrator not found."
+		except AssertionError:
+			logging.info("The split file not found.")
+			sys.exit()
 	        logging.info("Now proceeding to flag on the split file.")
 		myantselect =''
 		mytfcrop(splitfilename,'',myantselect,4.0,4.0,'DATA','')
