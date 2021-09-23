@@ -505,7 +505,7 @@ if doinitcal == True:
 #	for i in range(0,len(mycals)):
 #		mygaincal_ap2(msfilename,mycals[i],ref_ant,gainspw,uvracal,mycalsuffix)
         for i in range(0,len(myallcals)):
-		mygaintables = [str(msfilename)+'.K1'+calsuffix, str(myfile)+'.B1'+calsuffix ]
+		mygaintables = [str(msfilename)+'.K1'+mycalsuffix, str(myfile)+'.B1'+mycalsuffix ]
 		mygainfields =[kcorrfield,str(','.join(mybpcals))]
                 mygaincal_ap3(msfilename,myallcals[i],ref_ant,gainspw,uvracal,mycalsuffix,mygaintables,mygainfields)	
 # Get flux scale
