@@ -167,6 +167,16 @@ def mygaincal_ap2(myfile,mycal,myref,myflagspw,myuvracal,calsuffix):
 		parang = True )
 	return gaintable
 
+
+def mygaincal_ap3(myfile,mycal,myref,myflagspw,myuvracal,calsuffix,mygaintables,mygainfields):
+	default(gaincal)
+	gaincal(vis=myfile, caltable=str(myfile)+'.AP.G'+calsuffix, spw =myflagspw,uvrange=myuvracal,append=True,
+		field=mycal,solint = '120s',refant = myref, minsnr = 2.0, solmode ='L1R', gaintype = 'G', calmode = 'ap',refantmode ='strict',
+		gaintable = mygaintables, gainfield = mygainfields,interp = ['nearest,nearestflag', 'nearest,nearestflag' ], 
+		parang = True )
+	return gaintable
+
+
 def getfluxcal(myfile,mycalref,myscal):
 	myscale = fluxscale(vis=myfile, caltable=str(myfile)+'.AP.G', fluxtable=str(myfile)+'.fluxscale', reference=mycalref, transfer=myscal,
                     incremental=False)
@@ -318,6 +328,12 @@ def getgainspw(msfilename):
                 gainspw = '0:41~490'
                 gainspw2 = ''   # central good channels after split file for self-cal   
                 logging.info("The following channel range will be used.")
+	else:
+		mygoodchans = ''
+		flagspw = ''
+		gainspw = ''
+		gainspw2 = ''   # central good channels after split file for self-cal   
+		logging.info("The entire channel range will be used.")
         return gainspw, mygoodchans, flagspw, mypol
 
 
@@ -1029,6 +1045,8 @@ def polcalleakage(ms,unpolcalib,flagspw,refant,gtables,gfields):
         		refant = refant, solint = 'inf', poltype = 'Df+QU', combine = 'scan', 
         		gaintable = gtables, gainfield = gfields)
 	return leakage1
+
+
 
 # update after leakage cal done
 #gaintable = [kcorrfile, bpassfile, gainfile, kcross1, leakage1], 
