@@ -1020,10 +1020,11 @@ if redocal == True:
 				pfluxscale(msfilename,gainfile,fluxfield,transferfield,fluxfile)
 				mygaintables = [fluxfile,str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix]
 				#applycal needs proper ref fields and tables
-				logging.info("########Pol applycal flux cal######")				
-				gtables = mygaintables.append(polangtab)#[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1, leakage1, polang1]
+				logging.info("########Pol applycal flux cal######")
+				mygaintables.append(polangtab)			
+				gtables = mygaintables#[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1, leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields =[myampcals[0],kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib]# [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields =[fluxfield,kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib]# [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("fluxfield used %s",str(fluxfield))
 				papplycal_fcal(msfilename,fluxfield,flagspw,gtables,gfields)
@@ -1032,7 +1033,7 @@ if redocal == True:
 				gtables = [str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1,
  #leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields = [kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields = [kcorrfield,mybpcals,fluxfield,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("phase cals %s",str(', '.join(mypcals)))
 				papplycal_pcal(msfilename,str(', '.join(mypcals)),flagspw,gtables,gfields)
