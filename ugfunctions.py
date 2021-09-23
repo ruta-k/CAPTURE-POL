@@ -263,7 +263,7 @@ def getgainspw(msfilename):
                 gainspw2 = ''   # central good channels after split file for self-cal
                 logging.info("The following channel range will be used.")
         elif mynchan == 2048:
-                mygoodchans = '0:1100~1200'   # used for visstat  # edited for pol cal of 32_108
+                mygoodchans = '0:801~1700'   # used for visstat  # edited for pol cal of 32_108
                 flagspw = '0:801~1700'
                 gainspw = '0:801~1700'
                 gainspw2 = ''   # central good channels after split file for self-cal
