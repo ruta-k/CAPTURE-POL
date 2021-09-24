@@ -1369,6 +1369,8 @@ if dosplit_calibrator == True:
 		if os.path.isdir(uniq_cals[i]+'split.ms') == True:
                         logging.info("The existing split file will be deleted.")
 			os.system('rm -rf '+uniq_cals[i]+'split.ms')
+		if os.path.isdir(uniq_cals[i]+'split.ms.flagversions') == True:
+			os.system('rm -rf '+uniq_cals[i]+'split.ms.flagversions')
                 logging.info("Splitting calibrator source data.")
                 logging.info(gainspw1)
 		splitfilename = mysplitinit(msfilename,uniq_cals[i],gainspw1,1)
@@ -1404,8 +1406,8 @@ if dosplit_calibrator == True:
 		logging.info("Your data will be averaged in frequency.")
         	if os.path.isdir('avg-'+splitfilename) == True:
         	        os.system('rm -rf avg-'+splitfilename)
-	       	        if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
-        	               os.system('rm -rf avg-'+splitfilename+'.flagversions')
+	       	if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
+        	        os.system('rm -rf avg-'+splitfilename+'.flagversions')
 		splitavgfilename = mysplitavg(splitfilename,'','',chanavg)
 #if doflagavg == True:
 	        try:
