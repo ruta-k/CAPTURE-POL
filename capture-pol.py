@@ -1303,9 +1303,9 @@ if doselfcal == True:
 			
 
 if dopolimages_target == True:
-	tcleanQ(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
-	tcleanU(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
-	tcleanV(finalvis,cell,imsize, mynterms1,mywproj,clean_robust)
+	tcleanQ(finalvis,imcellsize,imsize_pix, mynterms1,mywproj,clean_robust)
+	tcleanU(finalvis,imcellsize,imsize_pix, mynterms1,mywproj,clean_robust)
+	tcleanV(finalvis,imcellsize,imsize_pix, mynterms1,mywproj,clean_robust)
 
 
 
