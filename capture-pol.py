@@ -1310,7 +1310,7 @@ if dopolimages_target == True:
 
 
 
-if dopolimages_calibrator == True:
+if dosplit_calibrator == True:
 # fix targets
 	myfields = getfields(msfilename)
 	stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
@@ -1404,7 +1404,7 @@ if dopolimages_calibrator == True:
 		logging.info("Your data will be averaged in frequency.")
         	if os.path.isdir('avg-'+splitfilename) == True:
         	        os.system('rm -rf avg-'+splitfilename)
-        	        if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
+	       	        if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
         	               os.system('rm -rf avg-'+splitfilename+'.flagversions')
 		splitavgfilename = mysplitavg(splitfilename,'','',chanavg)
 #if doflagavg == True:
@@ -1412,16 +1412,22 @@ if dopolimages_calibrator == True:
 	                assert os.path.isdir(splitavgfilename), "The splitavg file not found."
 	        except AssertionError:
 	                logging.info("The splitavg file not found.")
-                sys.exit()
+	                sys.exit()
 		logging.info("Flagging on freqeuncy averaged data.")
 #		a, b = getbllists(splitavgfilename)
 		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
 		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
 	        logging.info("A flagging summary is provided for the MS file.")
 	        flagsummary(splitavgfilename)
-		tcleanQ(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
-		tcleanU(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
-		tcleanV(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+#		tcleanQ(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+#		tcleanU(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+#		tcleanV(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+
+
+
+############
+
+
 	
 
 
