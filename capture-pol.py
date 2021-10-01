@@ -462,7 +462,7 @@ if flaginit == True:
 #####################################################################
 # Calibration begins.
 if doinitcal == True:
-#	assert os.path.isdir(msfilename)
+	assert os.path.isdir(msfilename)
         try:
                 assert os.path.isdir(msfilename), "doinitcal = True but ms file not found."
         except AssertionError:
@@ -486,14 +486,12 @@ if doinitcal == True:
 	default(gaincal)
 	gaincal(vis=msfilename, caltable=str(msfilename)+'.AP.G0'+mycalsuffix, append=True, field=str(','.join(mybpcals)), 
 		spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 2.0, solmode = 'L1R', gaintype = 'G', calmode = 'ap', gaintable = [str(msfilename)+'.K1'+mycalsuffix],
-		gainfield=[kcorrfield],
 		interp = ['nearest,nearestflag', 'nearest,nearestflag' ], parang = True)
 	if os.path.isdir(str(msfilename)+'.B1'+mycalsuffix) == True:
 		os.system('rm -rf '+str(msfilename)+'.B1'+mycalsuffix)
 	default(bandpass)
 	bandpass(vis=msfilename, caltable=str(msfilename)+'.B1'+mycalsuffix, spw =flagspw, field=str(','.join(mybpcals)), solint='inf', refant=ref_ant, solnorm = True,
-		minsnr=2.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], 	
-		gainfield=[kcorrfield,str(','.join(mybpcals))],interp=['nearest,nearestflag','nearest,nearestflag'])
+		minsnr=2.0, fillgaps=8, parang = True, gaintable=[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.AP.G0'+mycalsuffix], interp=['nearest,nearestflag','nearest,nearestflag'])
 # do a gaincal on all calibrators
 	mycals=myampcals+mypcals
 	myrestcals = mypolcals+myunpolcals+myocals
@@ -505,12 +503,26 @@ if doinitcal == True:
 #	for i in range(0,len(mycals)):
 #		mygaincal_ap2(msfilename,mycals[i],ref_ant,gainspw,uvracal,mycalsuffix)
         for i in range(0,len(myallcals)):
-		mygaintables = [str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix ]
-		mygainfields =[kcorrfield,str(','.join(mybpcals))]
-                mygaincal_ap3(msfilename,myallcals[i],ref_ant,gainspw,uvracal,mycalsuffix,mygaintables,mygainfields)	
+                mygaincal_ap2(msfilename,myallcals[i],ref_ant,gainspw,uvracal,mycalsuffix)	
 # Get flux scale
 	if os.path.isdir(str(msfilename)+'.fluxscale'+mycalsuffix) == True:
 		os.system('rm -rf '+str(msfilename)+'.fluxscale'+mycalsuffix)
+######################################
+#	if mypcals !=[]:
+#		if '3C286' in myampcals:
+#			myfluxscale= getfluxcal2(msfilename,'3C286',str(', '.join(mypcals)),mycalsuffix)
+#			myfluxscaleref = '3C286'
+#		elif '3C147' in myampcals:
+#			myfluxscale= getfluxcal2(msfilename,'3C147',str(', '.join(mypcals)),mycalsuffix)
+#			myfluxscaleref = '3C147'
+#		else:
+#			myfluxscale= getfluxcal2(msfilename,myampcals[0],str(', '.join(mypcals)),mycalsuffix)
+#			myfluxscaleref = myampcals[0]
+#		logging.info(myfluxscale)
+#		mygaintables =[str(msfilename)+'.fluxscale'+mycalsuffix,str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix]
+#	else:
+#		mygaintables =[str(msfilename)+'.AP.G'+mycalsuffix,str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix]
+##############################
 	if mypcals !=[]:
                 if '3C286' in myampcals:
                         myfluxscale= getfluxcal2(msfilename,'3C286',str(', '.join(mypcals+myrestcals)),mycalsuffix)
@@ -725,7 +737,7 @@ if redocal == True:
 		os.system('rm -rf '+str(msfilename)+'.AP.G0'+mycalsuffix)
 	default(gaincal)
 	gaincal(vis=msfilename, caltable=str(msfilename)+'.AP.G0'+mycalsuffix, append=True, field=str(','.join(mybpcals)), 
-		spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 2.0, solmode ='L1R', gaintype = 'G', calmode = 'ap', gaintable = [str(msfilename)+'.K1'+mycalsuffix],
+		spw =flagspw, solint = 'int', refant = ref_ant, minsnr = 2.0, solmode ='L1R', gaintype = 'G', calmode = 'ap', gaintable = [str(msfilename)+'.K1'],
 		interp = ['nearest,nearestflag', 'nearest,nearestflag' ], parang = True)
 	if os.path.isdir(str(msfilename)+'.B1'+mycalsuffix) == True:
 		os.system('rm -rf '+str(msfilename)+'.B1'+mycalsuffix)
@@ -923,12 +935,12 @@ if redocal == True:
 			else:
 				polcalib = myampcals[0]
 			logging.info('Pol cal is  %s', str(polcalib))			
-			if '3C84' in myfields:
-				unpolcalib = '3C84' # hardcoded for now
-			else:
-				unpolcalib =polcalib
-#			unpolcalib = myunpolcals[0]  # hardcoded for now
-			logging.info('Un-pol (leakage) cal is  %s', str(unpolcalib))
+#			if '3C84' in mytargets:
+#				unpolcalib = '3C84' # hardcoded for now
+#			else:
+#				unpolcalib =''
+			unpolcalib = myunpolcals[0]  # hardcoded for now
+			logging.info('Un-pol cal is  %s', str(unpolcalib))
 #			if mypcals !=[]:
 #				if '3C286' in myampcals:
 #					myfluxscale= getfluxcal2(msfilename,'3C286',str(', '.join(mypcals)),mycalsuffix)
@@ -980,7 +992,7 @@ if redocal == True:
 				gtables = mygaintables #[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.fluxscale'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix]
 				logging.info("gaintables used %s", str(gtables))
 				#[str(msfilename)+'.fluxscale'+mycalsuffix,str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix]
-				gfields =[polcalib,kcorrfield,mybpcals]
+				gfields =[polcalib,myampcals[0],mybpcals]
 				logging.info("The gain fields are %s", str(gfields))
 				logging.info("polcalib %s",str(polcalib))
 				kcrosstab = kcrossgcal1(msfilename,polcalib,flagspw,ref_ant,gtables,gfields)
@@ -989,13 +1001,13 @@ if redocal == True:
 				# polcals = ['3C286','3C138']
 				mygaintables.append(kcrosstab)
 				gtables = mygaintables#[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.fluxscale'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,kcrosstab]
-				logging.info("########leakage using UN-polcalib or polcalib######")
+				logging.info("########leakage######")				
 				logging.info(str(gtables))
 #				gfields =[str(', '.join(mycals)),myampcals[0],mybpcals,polcalib]#[myampcals[0],mycals,mybpcals,polcalib]
-				gfields =[unpolcalib,kcorrfield,mybpcals,polcalib]#[myampcals[0],mycals,mybpcals,polcalib]
+				gfields =[unpolcalib,myampcals[0],mybpcals,polcalib]#[myampcals[0],mycals,mybpcals,polcalib]
 				logging.info("gfields used as %s",str(gfields))
-				logging.info("unpolcalib or leakage caibrator is %s",str(unpolcalib))
-				leakagetab1 = polcalleakage(msfilename,unpolcalib,flagspw,ref_ant,gtables,gfields)			
+				logging.info("unpolcalib %s",str(unpolcalib))
+				leakagetab1 = polcalleakage(msfilename,unpolcalib,flagspw,ref_ant,gtables,gfields)
 				# update after leakage cal done
 				#gaintable = [kcorrfile, bpassfile, gainfile, kcross1, leakage1], 
 				#gainfield = [kcorrfield,bpassfield,polcalib,polcalib,unpolcalib])
@@ -1005,7 +1017,7 @@ if redocal == True:
 				logging.info("gaintables used %s", str(gtables))
 				#gtables = mygaintables+kcrosstab+leakagetab1 #[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.fluxscale'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,kcrosstab,leakagetab1]
 #				gfields =[str(', '.join(mycals)),myampcals[0],mybpcals,polcalib,unpolcalib]#[myampcals[0],mycals,mybpcals,polcalib,unpolcalib]
-				gfields =[polcalib,kcorrfield,mybpcals,polcalib,unpolcalib]#[myampcals[0],mycals,mybpcals,polcalib,unpolcalib]
+				gfields =[polcalib,myampcals[0],mybpcals,polcalib,unpolcalib]#[myampcals[0],mycals,mybpcals,polcalib,unpolcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("polcalib %s",str(polcalib))
 				polangtab = polcalcross(msfilename, polcalib,ref_ant, gtables, gfields)
@@ -1020,11 +1032,10 @@ if redocal == True:
 				pfluxscale(msfilename,gainfile,fluxfield,transferfield,fluxfile)
 				mygaintables = [fluxfile,str(msfilename)+'.K1'+mycalsuffix, str(msfilename)+'.B1'+mycalsuffix]
 				#applycal needs proper ref fields and tables
-				logging.info("########Pol applycal flux cal######")
-				mygaintables.append(polangtab)			
-				gtables = mygaintables#[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1, leakage1, polang1]
+				logging.info("########Pol applycal flux cal######")				
+				gtables = mygaintables.append(polangtab)#[str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1, leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields =[fluxfield,kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib]# [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields =[myampcals[0],myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib]# [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("fluxfield used %s",str(fluxfield))
 				papplycal_fcal(msfilename,fluxfield,flagspw,gtables,gfields)
@@ -1033,7 +1044,7 @@ if redocal == True:
 				gtables = [str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1,
  #leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields = [kcorrfield,mybpcals,fluxfield,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("phase cals %s",str(', '.join(mypcals)))
 				papplycal_pcal(msfilename,str(', '.join(mypcals)),flagspw,gtables,gfields)
@@ -1042,7 +1053,7 @@ if redocal == True:
 				gtables = [str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1,
  #leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields = [kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("polcalib %s",str(polcalib))
 				papplycal_polcal(msfilename,polcalib,flagspw,gtables,gfields)
@@ -1051,7 +1062,7 @@ if redocal == True:
 				gtables = [str(msfilename)+'.K1'+mycalsuffix,str(msfilename)+'.B1'+mycalsuffix,fluxfile, kcrosstab,leakagetab1,polangtab]#[kcorrfile,bpassfile, fluxfile, kcross1,
 # leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
-				gfields = [kcorrfield,mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+				gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("Unpolcalib %s",str(unpolcalib))
 				papplycal_unpolcal(msfilename,unpolcalib,flagspw,gtables,gfields)
@@ -1061,10 +1072,10 @@ if redocal == True:
 # leakage1, polang1]
 				logging.info("gaintables used %s", str(gtables))
 				if mypcals != []:
-					gfields = [kcorrfield,mybpcals,', '.join(mypcals),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+					gfields = [myampcals[0],mybpcals,', '.join(mypcals),polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				else:
 #					gfields = [myampcals[0],mybpcals,myampcals[0],polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
-					gfields = [kcorrfield,mybpcals,pampcal,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
+					gfields = [myampcals[0],mybpcals,pampcal,polcalib,unpolcalib,polcalib] #[kcorrfield,bpassfield,fluxfield, polcalib, unpolcalib, polcalib]
 				logging.info("gainfields used %s",str(gfields))
 				logging.info("targets %s",str(', '.join(mytargets)))
 				papplycal_target(msfilename,str(', '.join(mytargets)),flagspw,gtables,gfields)
@@ -1255,7 +1266,7 @@ if doselfcal == True:
 	                if nspws == 1:
                                 bw=getbw(splitavgfilename)
                                 if bw<=32E06:
-                                        raise Exception("GSB files  need not be subbanded. Make dosubbandselfcal False")                            
+                                        raise Exception("GSB files cannot be subbanded. Make dosubbandselfcal False")                            
 	                        mygainspw, msspw = makesubbands(myfile2,subbandchan)
 #	        		bw=getbw(splitavgfilename)
 #	        		if bw<=32E06:
@@ -1302,134 +1313,132 @@ if doselfcal == True:
 			myselfcal(myfile2,ref_ant,scaloops,pcaloops,mJythreshold,imcellsize,imsize_pix,use_nterms,nwprojpl,scalsolints,clipresid,'','',False,niter_start,clean_robust,domidselfcal,scalsrno)
 			
 
+
+
 if dopolimages_target == True:
-	tcleanQ(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
-	tcleanU(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
-	tcleanV(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
+        tcleanQ(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
+        tcleanU(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
+        tcleanV(finalvis,imcellsize,imsize_pix, use_nterms,nwprojpl,clean_robust)
 
 
 
 
 if dosplit_calibrator == True:
 # fix targets
-	myfields = getfields(msfilename)
-	stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
-	stdpolcals = ['3C286','3C138']
-	stdunpolcals = ['3C84']
-	stdothercal = ['OQ208']
-	vlacals = np.loadtxt('./vla-cals.list',dtype='string')
-	myampcals =[]
-	mypcals=[]
-	mypolcals =[]
-	myunpolcals =[]
-	mytargets=[]
-	myocals =[]
-	for i in range(0,len(myfields)):
-	        if myfields[i] in stdcals:
-	                myampcals.append(myfields[i])
-	        elif myfields[i] in vlacals:
-	                mypcals.append(myfields[i])
-	        else:
-	                mytargets.append(myfields[i])
-	        if myfields[i] in stdpolcals:
-	                mypolcals.append(myfields[i])
-	        if myfields[i] in stdunpolcals:
-	                myunpolcals.append(myfields[i])
-	        if myfields[i] in stdothercal:
-	                myocals.append(myfields[i])
-	mybpcals = myampcals
-	if '3C138' in mypolcals:
-	        mytransfield  = mypcals+myunpolcals+myocals+['3C138']
-	else:
-	        mytransfield =mypcals+myunpolcals+myocals
-	try:
-	        mytargets.remove('3C84')
-	except ValueError:
-	        logging.info("3C84 is not in the target list.")
-	try:
-	        mytargets.remove('OQ208')
-	except ValueError:
-	        logging.info("OQ208 is not in the target list.")
-	try:
-	        mytargets.remove('3C138')
-	except ValueError:
-	        logging.info("3C138 is not in the target list.")
-	logging.info('Amplitude caibrators are %s', str(myampcals))
-	logging.info('Phase calibrators are %s', str(mypcals))
-	logging.info('Polarized calibrators are %s', str(mypolcals))
-	logging.info('Un-polarized calibrators are %s', str(myunpolcals))
-	logging.info('Other calibrator is %s',str(myocals))
-	logging.info('Target sources are %s', str(mytargets))
-	logging.info('Transfer fields are %s', str(mytransfield))
-	myallcals = myampcals+mypcals+mypolcals+myunpolcals+myocals
-	uniq_cals = list(set(myallcals))
-	logging.info('The calibrators in this file are %s', str(uniq_cals))
+        myfields = getfields(msfilename)
+        stdcals = ['3C48','3C147','3C286','0542+498','1331+305','0137+331']
+        stdpolcals = ['3C286','3C138']
+        stdunpolcals = ['3C84']
+        stdothercal = ['OQ208']
+        vlacals = np.loadtxt('./vla-cals.list',dtype='string')
+        myampcals =[]
+        mypcals=[]
+        mypolcals =[]
+        myunpolcals =[]
+        mytargets=[]
+        myocals =[]
+        for i in range(0,len(myfields)):
+                if myfields[i] in stdcals:
+                        myampcals.append(myfields[i])
+                elif myfields[i] in vlacals:
+                        mypcals.append(myfields[i])
+                else:
+                        mytargets.append(myfields[i])
+                if myfields[i] in stdpolcals:
+                        mypolcals.append(myfields[i])
+                if myfields[i] in stdunpolcals:
+                        myunpolcals.append(myfields[i])
+                if myfields[i] in stdothercal:
+                        myocals.append(myfields[i])
+        mybpcals = myampcals
+        if '3C138' in mypolcals:
+                mytransfield  = mypcals+myunpolcals+myocals+['3C138']
+        else:
+                mytransfield =mypcals+myunpolcals+myocals
+        try:
+                mytargets.remove('3C84')
+        except ValueError:
+                logging.info("3C84 is not in the target list.")
+        try:
+                mytargets.remove('OQ208')
+        except ValueError:
+                logging.info("OQ208 is not in the target list.")
+        try:
+                mytargets.remove('3C138')
+        except ValueError:
+                logging.info("3C138 is not in the target list.")
+        logging.info('Amplitude caibrators are %s', str(myampcals))
+        logging.info('Phase calibrators are %s', str(mypcals))
+        logging.info('Polarized calibrators are %s', str(mypolcals))
+        logging.info('Un-polarized calibrators are %s', str(myunpolcals))
+        logging.info('Other calibrator is %s',str(myocals))
+        logging.info('Target sources are %s', str(mytargets))
+        logging.info('Transfer fields are %s', str(mytransfield))
+        myallcals = myampcals+mypcals+mypolcals+myunpolcals+myocals
+        uniq_cals = list(set(myallcals))
+        logging.info('The calibrators in this file are %s', str(uniq_cals))
         gainspw1,goodchans,flg_chans,pols = getgainspw(msfilename)
-	for i in range(0,len(uniq_cals)):
-		if os.path.isdir(uniq_cals[i]+'split.ms') == True:
+        for i in range(0,len(uniq_cals)):
+                if os.path.isdir(uniq_cals[i]+'split.ms') == True:
                         logging.info("The existing split file will be deleted.")
-			os.system('rm -rf '+uniq_cals[i]+'split.ms')
-		if os.path.isdir(uniq_cals[i]+'split.ms.flagversions') == True:
-			os.system('rm -rf '+uniq_cals[i]+'split.ms.flagversions')
+                        os.system('rm -rf '+uniq_cals[i]+'split.ms')
+                if os.path.isdir(uniq_cals[i]+'split.ms.flagversions') == True:
+                        os.system('rm -rf '+uniq_cals[i]+'split.ms.flagversions')
                 logging.info("Splitting calibrator source data.")
                 logging.info(gainspw1)
-		splitfilename = mysplitinit(msfilename,uniq_cals[i],gainspw1,1)
+                splitfilename = mysplitinit(msfilename,uniq_cals[i],gainspw1,1)
 # Flagging on split file
 #############################################################
 #if flagsplitfile == True:
-		try:
-			assert os.path.isdir(splitfilename), "the split file of the claibrator not found."
-		except AssertionError:
-			logging.info("The split file not found.")
-			sys.exit()
-	        logging.info("Now proceeding to flag on the split file.")
-		myantselect =''
-		mytfcrop(splitfilename,'',myantselect,4.0,4.0,'DATA','')
-#		a, b = getbllists(splitfilename)
-#		tdev = 6.0
-#		fdev = 6.0
-		myrflag(splitfilename,'',myantselect,4.0,4.0,'DATA','')
-#		tdev = 5.0
-#		fdev = 5.0
-#		myrflag(splitfilename,'',b[0],tdev,fdev,'DATA','')
-		logging.info("A flagging summary is provided for the MS file.")
-        	flagsummary(splitfilename)
+                try:
+                        assert os.path.isdir(splitfilename), "the split file of the claibrator not found."
+                except AssertionError:
+                        logging.info("The split file not found.")
+                        sys.exit()
+                logging.info("Now proceeding to flag on the split file.")
+                myantselect =''
+                mytfcrop(splitfilename,'',myantselect,4.0,4.0,'DATA','')
+#               a, b = getbllists(splitfilename)
+#               tdev = 6.0
+#               fdev = 6.0
+                myrflag(splitfilename,'',myantselect,4.0,4.0,'DATA','')
+#               tdev = 5.0
+#               fdev = 5.0
+#               myrflag(splitfilename,'',b[0],tdev,fdev,'DATA','')
+                logging.info("A flagging summary is provided for the MS file.")
+                flagsummary(splitfilename)
 #############################################################
 # SPLIT AVERAGE
 #############################################################
 #if dosplitavg == True:
-	        try:
-        	        assert os.path.isdir(splitfilename), "The split file for the calibrator not found."
-        	except AssertionError:
-        	        logging.info("The split file not found.")
-        	        sys.exit()
-		logging.info("Your data will be averaged in frequency.")
-        	if os.path.isdir('avg-'+splitfilename) == True:
-        	        os.system('rm -rf avg-'+splitfilename)
-	       	if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
-        	        os.system('rm -rf avg-'+splitfilename+'.flagversions')
-		splitavgfilename = mysplitavg(splitfilename,'','',chanavg)
+                try:
+                        assert os.path.isdir(splitfilename), "The split file for the calibrator not found."
+                except AssertionError:
+                        logging.info("The split file not found.")
+                        sys.exit()
+                logging.info("Your data will be averaged in frequency.")
+                if os.path.isdir('avg-'+splitfilename) == True:
+                        os.system('rm -rf avg-'+splitfilename)
+                if os.path.isdir('avg-'+splitfilename+'.flagversions') == True:
+                        os.system('rm -rf avg-'+splitfilename+'.flagversions')
+                splitavgfilename = mysplitavg(splitfilename,'','',chanavg)
 #if doflagavg == True:
-	        try:
-	                assert os.path.isdir(splitavgfilename), "The splitavg file not found."
-	        except AssertionError:
-	                logging.info("The splitavg file not found.")
-	                sys.exit()
-		logging.info("Flagging on freqeuncy averaged data.")
-#		a, b = getbllists(splitavgfilename)
-		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
-		myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
-	        logging.info("A flagging summary is provided for the MS file.")
-	        flagsummary(splitavgfilename)
-#		tcleanQ(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
-#		tcleanU(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
-#		tcleanV(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+                try:
+                        assert os.path.isdir(splitavgfilename), "The splitavg file not found."
+                except AssertionError:
+                        logging.info("The splitavg file not found.")
+                        sys.exit()
+                logging.info("Flagging on freqeuncy averaged data.")
+#               a, b = getbllists(splitavgfilename)
+                myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
+                myrflagavg(splitavgfilename,'','',4.0,4.0,'DATA','')
+                logging.info("A flagging summary is provided for the MS file.")
+                flagsummary(splitavgfilename)
+#               tcleanQ(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+#               tcleanU(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
+#               tcleanV(splitavgfilename,cell,3000, mynterms1,mywproj,clean_robust)
 
 
 
 ############
-
-
-	
-
 
