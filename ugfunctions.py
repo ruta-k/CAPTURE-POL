@@ -167,16 +167,6 @@ def mygaincal_ap2(myfile,mycal,myref,myflagspw,myuvracal,calsuffix):
 		parang = True )
 	return gaintable
 
-
-def mygaincal_ap3(myfile,mycal,myref,myflagspw,myuvracal,calsuffix,mygaintables,mygainfields):
-	default(gaincal)
-	gaincal(vis=myfile, caltable=str(myfile)+'.AP.G'+calsuffix, spw =myflagspw,uvrange=myuvracal,append=True,
-		field=mycal,solint = '120s',refant = myref, minsnr = 2.0, solmode ='L1R', gaintype = 'G', calmode = 'ap',refantmode ='strict',
-		gaintable = mygaintables, gainfield = mygainfields,interp = ['nearest,nearestflag', 'nearest,nearestflag' ], 
-		parang = True )
-	return gaintable
-
-
 def getfluxcal(myfile,mycalref,myscal):
 	myscale = fluxscale(vis=myfile, caltable=str(myfile)+'.AP.G', fluxtable=str(myfile)+'.fluxscale', reference=mycalref, transfer=myscal,
                     incremental=False)
@@ -273,7 +263,7 @@ def getgainspw(msfilename):
                 gainspw2 = ''   # central good channels after split file for self-cal
                 logging.info("The following channel range will be used.")
         elif mynchan == 2048:
-                mygoodchans = '0:801~1700'   # used for visstat  # edited for pol cal of 32_108
+                mygoodchans = '0:1100~1200'   # used for visstat  # edited for pol cal of 32_108
                 flagspw = '0:801~1700'
                 gainspw = '0:801~1700'
                 gainspw2 = ''   # central good channels after split file for self-cal
@@ -328,12 +318,6 @@ def getgainspw(msfilename):
                 gainspw = '0:41~490'
                 gainspw2 = ''   # central good channels after split file for self-cal   
                 logging.info("The following channel range will be used.")
-	else:
-		mygoodchans = ''
-		flagspw = ''
-		gainspw = ''
-		gainspw2 = ''   # central good channels after split file for self-cal   
-		logging.info("The entire channel range will be used.")
         return gainspw, mygoodchans, flagspw, mypol
 
 
@@ -1046,8 +1030,6 @@ def polcalleakage(ms,unpolcalib,flagspw,refant,gtables,gfields):
         		gaintable = gtables, gainfield = gfields)
 	return leakage1
 
-
-
 # update after leakage cal done
 #gaintable = [kcorrfile, bpassfile, gainfile, kcross1, leakage1], 
 #gainfield = [kcorrfield,bpassfield,polcalib,polcalib,unpolcalib])
@@ -1175,135 +1157,131 @@ def papplycal_target(ms,target,flagspw,gtables,gfields):
 		    parang= True)
 
 
-
+###########################################
 ############## write imaging functions for Stokes Q,U and V images ##############
 
 
 def tcleanQ(msfile,cell,imsize, mynterms1,mywproj,clean_robust):
-	qimagename=msfile+".Q"
-	if mynterms >1:
-		default(tclean)
-		tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
-			uvrange="",antenna="",scan="",observation="",intent="",
-		       datacolumn="corrected",imagename=msfile+".Q",imsize=imsize,cell=cell,phasecenter="",
-		       stokes="Q",projection="SIN",startmodel="",specmode="mfs",reffreq="",
-		       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
-		       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
-		       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
-		       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
-		       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
-		       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
-		       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
-		       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
-		       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
-		       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
-		       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
-		       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
-		       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
-		       calcpsf=True,parallel=False)
-		default(exportfits)
-		exportfits(imagename=qimagename+".image.tt0",fitsimage=qimagename+"-Q.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	else:
-        	tclean(vis=msfile,
-       			imagename=qimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs', 
-       			stokes="Q", specmode='mfs',	nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
-			smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
-	        	deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
-			restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
-       			interactive=False)
-		default(exportfits)
-		exportfits(imagename=qimagename+".image",fitsimage=qimagename+"-Q.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	return qimagename
+        qimagename=msfile+".Q"
+        if mynterms1 >1:
+                default(tclean)
+                tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
+                        uvrange="",antenna="",scan="",observation="",intent="",
+                       datacolumn="corrected",imagename=qimagename,imsize=imsize,cell=cell,phasecenter="",
+                       stokes="Q",projection="SIN",startmodel="",specmode="mfs",reffreq="",
+                       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
+                       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
+                       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
+                       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
+                       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
+                       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
+                       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
+                       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
+                       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
+                       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
+                       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
+                       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
+                       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
+                       calcpsf=True,parallel=False)
+                default(exportfits)
+                exportfits(imagename=qimagename+".image.tt0",fitsimage=qimagename+"-Q.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        else:
+                tclean(vis=msfile,
+                        imagename=qimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs',
+                        stokes="Q", specmode='mfs',     nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
+                        smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
+                        deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
+                        restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
+                        interactive=False)
+                default(exportfits)
+                exportfits(imagename=qimagename+".image",fitsimage=qimagename+"-Q.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        return qimagename
 
 
 def tcleanU(msfile,cell,imsize, mynterms1,mywproj,clean_robust):
-	Uimagename=msfile+".U"
-	if mynterms >1:
-		default(tclean)
-		tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
-			uvrange="",antenna="",scan="",observation="",intent="",
-		       datacolumn="corrected",imagename=Uimagename,imsize=imsize,cell=cell,phasecenter="",
-		       stokes="U",projection="SIN",startmodel="",specmode="mfs",reffreq="",
-		       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
-		       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
-		       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
-		       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
-		       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
-		       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
-		       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
-		       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
-		       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
-		       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
-		       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
-		       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
-		       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
-		       calcpsf=True,parallel=False)
-		default(exportfits)
-		exportfits(imagename=Uimagename+".image.tt0",fitsimage=qimagename+"-U.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	else:
-        	tclean(vis=msfile,
-       			imagename=Uimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs', 
-       			stokes="U", specmode='mfs',	nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
-			smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
-	        	deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
-			restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
-       			interactive=False)
-		default(exportfits)
-		exportfits(imagename=Uimagename+".image",fitsimage=qimagename+"-U.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	return Uimagename
-
+        Uimagename=msfile+".U"
+        if mynterms1 >1:
+                default(tclean)
+                tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
+                        uvrange="",antenna="",scan="",observation="",intent="",
+                       datacolumn="corrected",imagename=Uimagename,imsize=imsize,cell=cell,phasecenter="",
+                       stokes="U",projection="SIN",startmodel="",specmode="mfs",reffreq="",
+                       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
+                       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
+                       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
+                       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
+                       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
+                       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
+                       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
+                       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
+                       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
+                       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
+                       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
+                       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
+                       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
+                       calcpsf=True,parallel=False)
+                default(exportfits)
+                exportfits(imagename=Uimagename+".image.tt0",fitsimage=Uimagename+"-U.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        else:
+                tclean(vis=msfile,
+                        imagename=Uimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs',
+                        stokes="U", specmode='mfs',     nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
+                        smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
+                        deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
+                        restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
+                        interactive=False)
+                default(exportfits)
+                exportfits(imagename=Uimagename+".image",fitsimage=Uimagename+"-U.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        return Uimagename
 
 
 def tcleanV(msfile,cell,imsize, mynterms1,mywproj,clean_robust):
-	Vimagename=msfile+".V"
-	if mynterms >1:
-		default(tclean)
-		tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
-			uvrange="",antenna="",scan="",observation="",intent="",
-		       datacolumn="corrected",imagename=Uimagename,imsize=imsize,cell=cell,phasecenter="",
-		       stokes="V",projection="SIN",startmodel="",specmode="mfs",reffreq="",
-		       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
-		       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
-		       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
-		       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
-		       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
-		       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
-		       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
-		       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
-		       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
-		       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
-		       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
-		       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
-		       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
-		       calcpsf=True,parallel=False)
-		default(exportfits)
-		exportfits(imagename=Vimagename+".image.tt0",fitsimage=qimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	else:
-	       	tclean(vis=msfile,
-       			imagename=Uimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs', 
-       			stokes="V", specmode='mfs',	nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
-			smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
-	        	deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
-			restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
-       			interactive=False)
-		default(exportfits)
-		exportfits(imagename=Vimagename+".image",fitsimage=qimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
-        	   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
-        	   history=True,dropdeg=False)
-	return Vimagename
-
-
-
+        Vimagename=msfile+".V"
+        if mynterms1 >1:
+                default(tclean)
+                tclean(vis=msfile,selectdata=True,field="",spw="",timerange="",
+                        uvrange="",antenna="",scan="",observation="",intent="",
+                       datacolumn="corrected",imagename=Vimagename,imsize=imsize,cell=cell,phasecenter="",
+                       stokes="V",projection="SIN",startmodel="",specmode="mfs",reffreq="",
+                       nchan=-1,start="",width="",outframe="LSRK",veltype="radio",
+                       restfreq=[],interpolation="linear",perchanweightdensity=False,gridder="widefield",facets=1,
+                       psfphasecenter="",chanchunks=1,wprojplanes=mywproj,vptable="",usepointing=False,
+                       mosweight=True,aterm=True,psterm=False,wbawp=True,conjbeams=False,
+                       cfcache="",computepastep=360.0,rotatepastep=360.0,pblimit=-0.001,normtype="flatnoise",
+                       deconvolver="mtmfs",scales=[],nterms=mynterms1,smallscalebias=0.6,restoration=True,
+                       restoringbeam=[],pbcor=False,outlierfile="",weighting="briggs",robust=clean_robust,
+                       noise="1.0Jy",npixels=0,uvtaper=[],niter=50000,gain=0.1,
+                       threshold="0.001mJy",nsigma=0.0,cycleniter=-1,cyclefactor=1.1,minpsffraction=0.05,
+                       maxpsffraction=0.8,interactive=False,usemask="auto-multithresh",mask="",pbmask=0.0,
+                       sidelobethreshold=2.0,noisethreshold=5.0,lownoisethreshold=1.5,negativethreshold=0.0,smoothfactor=1.0,
+                       minbeamfrac=0.3,cutthreshold=0.01,growiterations=75,dogrowprune=True,minpercentchange=-1.0,
+                       verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
+                       calcpsf=True,parallel=False)
+                default(exportfits)
+                exportfits(imagename=Vimagename+".image.tt0",fitsimage=qimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        else:
+                tclean(vis=msfile,
+                        imagename=Vimagename, selectdata= True, field='', spw='', imsize=imsize, cell=cell, robust=clean_robust, weighting='briggs',
+                        stokes="V", specmode='mfs',     nterms=mynterms1, niter=50000, usemask='auto-multithresh',minbeamfrac=0.1,sidelobethreshold = 2.0,
+                        smallscalebias=0.6, threshold= mythresh, aterm =True, pblimit=-1,
+                        deconvolver='clark', gridder='wproject', wprojplanes=mywproj, scales=[],wbawp=False,
+                        restoration = True, savemodel='modelcolumn', cyclefactor = 0.5, parallel=False,
+                        interactive=False)
+                default(exportfits)
+                exportfits(imagename=Vimagename+".image",fitsimage=Vimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
+                   minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
+                   history=True,dropdeg=False)
+        return Vimagename
 
 
 
