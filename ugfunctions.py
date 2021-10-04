@@ -1266,7 +1266,7 @@ def tcleanV(msfile,cell,imsize, mynterms1,mywproj,clean_robust):
                        verbose=False,fastnoise=True,restart=True,savemodel="modelcolumn",calcres=True,
                        calcpsf=True,parallel=False)
                 default(exportfits)
-                exportfits(imagename=Vimagename+".image.tt0",fitsimage=qimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
+                exportfits(imagename=Vimagename+".image.tt0",fitsimage=Vimagename+"-V.fits",velocity=False,optical=False,bitpix=-32,
                    minpix=0,maxpix=-1,overwrite=False,dropstokes=False,stokeslast=True,
                    history=True,dropdeg=False)
         else:
