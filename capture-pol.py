@@ -229,6 +229,10 @@ if testms == True:
 		mytargets.remove('OQ208')
 	except ValueError:
 		logging.info("OQ208 is not in the target list.")
+	try:
+		mytargets.remove('3C138')
+	except ValueError:
+		logging.info("3C138 is not in the target list.")	
         mybpcals = myampcals
         if '3C138' in mypolcals:
                 mytransfield  = mypcals+myunpolcals+myocals+['3C138']
@@ -278,7 +282,10 @@ if testms == True:
         logging.info('Pol cal is  %s', str(polcalib))
         mycals=myampcals+mypcals
         myrestcals = mypolcals+myunpolcals+myocals
-        myrestcals.remove('3C286')
+	try:
+        	myrestcals.remove('3C286')
+	except ValueError:
+		logging.info('The source 3C286 is not in restcals.')
         myallcals = myrestcals+mycals
 #####################
 # fix targets
